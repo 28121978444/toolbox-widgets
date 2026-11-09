@@ -59,3 +59,30 @@ export type {
   ResourceStats,
   TopProcess
 } from './widgets/resource-monitor.js'
+
+export { MODEL_TASKS } from './llamafarm/index.js'
+export {
+  detectMachine,
+  fetchCatalog,
+  parseParamsBillions,
+  parseQuantLabel,
+  scoreModels,
+  sortForDisplay
+} from './llamafarm/index.js'
+export type {
+  CatalogModel,
+  DetectOptions,
+  ExecFileLike,
+  FetchCatalogOptions,
+  FitScenario,
+  FitVerdict,
+  GpuInfo,
+  InstalledModel,
+  MachineProfile,
+  ModelFormat,
+  ModelTask,
+  ModelTaskInfo,
+  OllamaInfo,
+  ScoreOptions,
+  ScoredModel
+} from './llamafarm/index.js'
