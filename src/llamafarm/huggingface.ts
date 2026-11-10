@@ -76,7 +76,8 @@ function siblingBytes(sibling: HfSibling): number {
 }
 
 function encodeRepoId(id: string): string {
-  return encodeURIComponent(id)
+  // HF wants the author/name slash literal; only the segments get encoded.
+  return id.split('/').map(encodeURIComponent).join('/')
 }
 
 function mapModel(

@@ -284,8 +284,8 @@ describe('fetchCatalog', () => {
   it('maps gguf and safetensors models with real file sizes', async () => {
     const fetchImpl = hfFetch({
       '/api/models?pipeline_tag=text-generation&sort=downloads&direction=-1&limit=24': LIST_TEXT,
-      '/api/models/Qwen%2FQwen2.5-Coder-7B-Instruct-GGUF?blobs=true': DETAIL_QWEN,
-      '/api/models/openai-community%2Fgpt2?blobs=true': DETAIL_GPT2
+      '/api/models/Qwen/Qwen2.5-Coder-7B-Instruct-GGUF?blobs=true': DETAIL_QWEN,
+      '/api/models/openai-community/gpt2?blobs=true': DETAIL_GPT2
     })
     const catalog = await fetchCatalog({ tasks: ['text-generation'], fetchImpl })
     assert.equal(catalog.length, 2)
@@ -311,7 +311,7 @@ describe('fetchCatalog', () => {
   it('wave 1: with gguf-only formats only gguf repos survive', async () => {
     const fetchImpl = hfFetch({
       '/api/models?pipeline_tag=text-generation&sort=downloads&direction=-1&limit=24': LIST_TEXT,
-      '/api/models/Qwen%2FQwen2.5-Coder-7B-Instruct-GGUF?blobs=true': DETAIL_QWEN
+      '/api/models/Qwen/Qwen2.5-Coder-7B-Instruct-GGUF?blobs=true': DETAIL_QWEN
     })
     const catalog = await fetchCatalog({ tasks: ['text-generation'], formats: ['gguf'], fetchImpl })
     assert.equal(catalog.length, 1)
@@ -321,7 +321,7 @@ describe('fetchCatalog', () => {
   it('skips a failed task but throws when every task fails', async () => {
     const oneTaskDown = hfFetch({
       '/api/models?pipeline_tag=text-generation&sort=downloads&direction=-1&limit=24': LIST_TEXT,
-      '/api/models/Qwen%2FQwen2.5-Coder-7B-Instruct-GGUF?blobs=true': DETAIL_QWEN
+      '/api/models/Qwen/Qwen2.5-Coder-7B-Instruct-GGUF?blobs=true': DETAIL_QWEN
       // text-to-image list route missing -> 404
     })
     const partial = await fetchCatalog({
@@ -343,7 +343,7 @@ describe('fetchCatalog', () => {
       '/api/models?pipeline_tag=text-generation&sort=downloads&direction=-1&limit=24': [
         { id: 'unquantized/phi-4-gguf', pipeline_tag: 'text-generation', tags: ['gguf'], downloads: 10, likes: 1 }
       ],
-      '/api/models/unquantized%2Fphi-4-gguf?blobs=true': {
+      '/api/models/unquantized/phi-4-gguf?blobs=true': {
         siblings: [{ rfilename: 'phi-4-q4_k_m.gguf', size: 2 * GiB, lfs: { size: 2 * GiB } }],
         gguf: { total: 14700000000 }
       }
