@@ -17,6 +17,23 @@ export interface FetchCatalogOptions {
 export declare function parseParamsBillions(fileName: string): number | null;
 /** Parse a quantization label from a weights filename ('Q4_K_M', 'Q8_0', 'F16'). */
 export declare function parseQuantLabel(fileName: string): string | null;
+interface HfSibling {
+    rfilename: string;
+    size?: number;
+    lfs?: {
+        size?: number;
+    };
+}
+/**
+ * Quants in the order a local run prefers them. Q4_K_M is the Ollama default,
+ * so a repo that ships it is measured at that size instead of the F16 copy.
+ */
+export declare const PREFERRED_QUANTS: string[];
+/**
+ * Pick the GGUF a local run would actually use: the preferred quant when the
+ * repo has one, otherwise the largest file available.
+ */
+export declare function choosePrimaryGguf(files: HfSibling[]): HfSibling;
 /**
  * Fetch the catalog: top-downloaded models per task with real file sizes.
  * A task whose list request fails is skipped; if every task fails, throws.
@@ -35,3 +52,4 @@ export interface FetchModelOptions {
  * a repo directly instead of picking one from the catalog.
  */
 export declare function fetchModelById(repoId: string, options?: FetchModelOptions): Promise<CatalogModel | null>;
+export {};

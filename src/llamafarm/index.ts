@@ -6,6 +6,8 @@ export {
   parseParamsBillions,
   parseQuantLabel,
   resolveModelTask,
+  choosePrimaryGguf,
+  PREFERRED_QUANTS,
   type FetchCatalogOptions,
   type FetchModelOptions
 } from './huggingface.js'

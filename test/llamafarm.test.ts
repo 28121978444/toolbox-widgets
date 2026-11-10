@@ -324,7 +324,7 @@ describe('fetchCatalog', () => {
     const qwen = catalog.find((entry) => entry.id.includes('Qwen'))
     assert.ok(qwen)
     assert.deepEqual(qwen?.formats, ['gguf'])
-    assert.equal(qwen?.fileBytes, 4683078144) // largest gguf wins
+    assert.equal(qwen?.fileBytes, 4683078144) // the preferred Q4_K_M quant wins
     assert.equal(qwen?.quantLabel, 'Q4_K_M')
     assert.equal(qwen?.paramsBillions, 7)
     assert.equal(qwen?.license, 'apache-2.0')
@@ -394,5 +394,39 @@ describe('fetchCatalog', () => {
     })
     const catalog = await fetchCatalog({ tasks: ['text-to-speech'], formats: ['safetensors'], fetchImpl })
     assert.equal(catalog.length, 0)
+  })
+
+  it('measures a repo at the quant a local run would use, not the largest file', async () => {
+    const fetchImpl = hfFetch({
+      '/api/models?pipeline_tag=text-generation&sort=downloads&direction=-1&limit=24': [
+        { id: 'someone/multi-quant', pipeline_tag: 'text-generation', tags: ['gguf'], downloads: 10, likes: 1 }
+      ],
+      '/api/models/someone/multi-quant?blobs=true': {
+        siblings: [
+          { rfilename: 'model-f16.gguf', size: 6 * GiB, lfs: { size: 6 * GiB } },
+          { rfilename: 'model-Q4_K_M.gguf', size: 2 * GiB, lfs: { size: 2 * GiB } },
+          { rfilename: 'model-Q8_0.gguf', size: 4 * GiB, lfs: { size: 4 * GiB } }
+        ]
+      }
+    })
+    const catalog = await fetchCatalog({ tasks: ['text-generation'], formats: ['gguf'], fetchImpl })
+    assert.equal(catalog[0]?.fileBytes, 2 * GiB)
+    assert.equal(catalog[0]?.quantLabel, 'Q4_K_M')
+  })
+
+  it('falls back to the largest file when no preferred quant exists', async () => {
+    const fetchImpl = hfFetch({
+      '/api/models?pipeline_tag=text-generation&sort=downloads&direction=-1&limit=24': [
+        { id: 'someone/full-precision', pipeline_tag: 'text-generation', tags: ['gguf'], downloads: 10, likes: 1 }
+      ],
+      '/api/models/someone/full-precision?blobs=true': {
+        siblings: [
+          { rfilename: 'model-f16.gguf', size: 6 * GiB, lfs: { size: 6 * GiB } },
+          { rfilename: 'model-bf16.gguf', size: 5 * GiB, lfs: { size: 5 * GiB } }
+        ]
+      }
+    })
+    const catalog = await fetchCatalog({ tasks: ['text-generation'], formats: ['gguf'], fetchImpl })
+    assert.equal(catalog[0]?.fileBytes, 6 * GiB)
   })
 })

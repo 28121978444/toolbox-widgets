@@ -64,6 +64,7 @@ export {
   MODEL_TASKS,
   buildModelfile,
   catalogCachePath,
+  choosePrimaryGguf,
   detectMachine,
   fetchCatalog,
   fetchModelById,
@@ -83,7 +84,8 @@ export {
   sortForDisplay,
   writeCatalogCache,
   DEFAULT_CATALOG_TTL_MS,
-  OLLAMA_HF_HOST
+  OLLAMA_HF_HOST,
+  PREFERRED_QUANTS
 } from './llamafarm/index.js'
 export type {
   CatalogCache,

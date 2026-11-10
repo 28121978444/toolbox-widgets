@@ -87,6 +87,42 @@ function encodeRepoId(id: string): string {
   return id.split('/').map(encodeURIComponent).join('/')
 }
 
+/**
+ * Quants in the order a local run prefers them. Q4_K_M is the Ollama default,
+ * so a repo that ships it is measured at that size instead of the F16 copy.
+ */
+export const PREFERRED_QUANTS = [
+  'Q4_K_M',
+  'Q4_K_S',
+  'IQ4_XS',
+  'IQ4_NL',
+  'Q4_0',
+  'Q5_K_M',
+  'Q3_K_M',
+  'Q2_K',
+  'Q6_K',
+  'Q8_0'
+]
+
+/**
+ * Pick the GGUF a local run would actually use: the preferred quant when the
+ * repo has one, otherwise the largest file available.
+ */
+export function choosePrimaryGguf(files: HfSibling[]): HfSibling {
+  const byQuant = new Map<string, HfSibling>()
+  for (const file of files) {
+    const label = parseQuantLabel(file.rfilename)
+    if (!label) continue
+    const current = byQuant.get(label)
+    if (!current || siblingBytes(file) > siblingBytes(current)) byQuant.set(label, file)
+  }
+  for (const preferred of PREFERRED_QUANTS) {
+    const match = byQuant.get(preferred)
+    if (match) return match
+  }
+  return files.reduce((a, b) => (siblingBytes(a) >= siblingBytes(b) ? a : b))
+}
+
 function mapModel(
   task: ModelTask,
   item: HfListItem,
@@ -103,7 +139,7 @@ function mapModel(
   if (!formats.some((format) => wanted.has(format))) return null
 
   const primary = ggufFiles.length > 0
-  const chosen = primary ? ggufFiles.reduce((a, b) => (siblingBytes(a) >= siblingBytes(b) ? a : b)) : null
+  const chosen = primary ? choosePrimaryGguf(ggufFiles) : null
   const fileBytes = primary
     ? siblingBytes(chosen as HfSibling)
     : safeFiles.reduce((sum, s) => sum + siblingBytes(s), 0)
