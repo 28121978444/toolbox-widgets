@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm install
+      - run: npm run typecheck
+      - run: npm test
+
+      # dist/ is committed for file: consumers; fail if it drifts from src.
+      - name: Verify committed dist is current
+        shell: bash
+        run: |
+          npm run build
+          git diff --exit-code -- dist || (echo "dist/ is stale — run npm run build and commit" && exit 1)
