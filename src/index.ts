@@ -60,20 +60,37 @@ export type {
   TopProcess
 } from './widgets/resource-monitor.js'
 
-export { MODEL_TASKS } from './llamafarm/index.js'
 export {
+  MODEL_TASKS,
+  buildModelfile,
+  catalogCachePath,
   detectMachine,
   fetchCatalog,
+  fetchModelById,
+  isCatalogFresh,
+  normalizeRepoId,
+  ollamaModelName,
+  ollamaReference,
   parseParamsBillions,
   parseQuantLabel,
+  planOllamaInstall,
+  probeOllamaCli,
+  pullIntoOllama,
+  readCatalogCache,
+  resolveModelTask,
   scoreModels,
-  sortForDisplay
+  sortForDisplay,
+  writeCatalogCache,
+  DEFAULT_CATALOG_TTL_MS,
+  OLLAMA_HF_HOST
 } from './llamafarm/index.js'
 export type {
+  CatalogCache,
   CatalogModel,
   DetectOptions,
   ExecFileLike,
   FetchCatalogOptions,
+  FetchModelOptions,
   FitScenario,
   FitVerdict,
   GpuInfo,
@@ -82,9 +99,14 @@ export type {
   ModelFormat,
   ModelTask,
   ModelTaskInfo,
+  OllamaCliInfo,
   OllamaInfo,
+  OllamaInstallPlan,
+  PullResult,
   ScoreOptions,
-  ScoredModel
+  ScoredModel,
+  SpawnLike,
+  SpawnedProcess
 } from './llamafarm/index.js'
 
 export {

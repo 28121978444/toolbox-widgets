@@ -22,3 +22,16 @@ export declare function parseQuantLabel(fileName: string): string | null;
  * A task whose list request fails is skipped; if every task fails, throws.
  */
 export declare function fetchCatalog(options?: FetchCatalogOptions): Promise<CatalogModel[]>;
+/** Map a HuggingFace pipeline tag onto a Model Farm task, defaulting to text. */
+export declare function resolveModelTask(pipelineTag?: string): ModelTask;
+export interface FetchModelOptions {
+    formats?: ModelFormat[];
+    fetchImpl?: FetchLike;
+    baseUrl?: string;
+    timeoutMs?: number;
+}
+/**
+ * Fetch a single model by its HuggingFace repo id — used when the user names
+ * a repo directly instead of picking one from the catalog.
+ */
+export declare function fetchModelById(repoId: string, options?: FetchModelOptions): Promise<CatalogModel | null>;

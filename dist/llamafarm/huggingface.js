@@ -163,4 +163,35 @@ export async function fetchCatalog(options = {}) {
     });
     return mapped.filter((model) => model !== null);
 }
+/** Map a HuggingFace pipeline tag onto a Model Farm task, defaulting to text. */
+export function resolveModelTask(pipelineTag) {
+    const match = MODEL_TASKS.find((entry) => entry.task === pipelineTag);
+    return match ? match.task : 'text-generation';
+}
+/**
+ * Fetch a single model by its HuggingFace repo id — used when the user names
+ * a repo directly instead of picking one from the catalog.
+ */
+export async function fetchModelById(repoId, options = {}) {
+    const fetchImpl = options.fetchImpl ?? globalThis.fetch;
+    const baseUrl = (options.baseUrl ?? 'https://huggingface.co').replace(/\/+$/, '');
+    const timeoutMs = options.timeoutMs ?? 15000;
+    const wanted = new Set(options.formats ?? ['gguf', 'safetensors']);
+    const response = await fetchImpl(`${baseUrl}/api/models/${encodeRepoId(repoId)}?blobs=true`, {
+        signal: AbortSignal.timeout(timeoutMs),
+        headers: { Accept: 'application/json' }
+    });
+    if (!response.ok)
+        throw new Error(`HuggingFace returned HTTP ${response.status} for ${repoId}`);
+    const detail = (await response.json());
+    const task = resolveModelTask(detail.pipeline_tag);
+    const item = {
+        id: detail.id ?? repoId,
+        pipeline_tag: detail.pipeline_tag,
+        tags: detail.tags ?? [],
+        downloads: Number(detail.downloads ?? 0),
+        likes: Number(detail.likes ?? 0)
+    };
+    return mapModel(task, item, detail, wanted);
+}
 //# sourceMappingURL=huggingface.js.map

@@ -68,9 +68,14 @@ interface HfSibling {
 }
 
 interface HfDetail {
+  id?: string
+  pipeline_tag?: string
   siblings?: HfSibling[]
   cardData?: { license?: unknown }
   gguf?: { total?: number }
+  tags?: string[]
+  downloads?: number
+  likes?: number
 }
 
 function siblingBytes(sibling: HfSibling): number {
@@ -218,4 +223,45 @@ export async function fetchCatalog(options: FetchCatalogOptions = {}): Promise<C
     }
   })
   return mapped.filter((model): model is CatalogModel => model !== null)
+}
+
+/** Map a HuggingFace pipeline tag onto a Model Farm task, defaulting to text. */
+export function resolveModelTask(pipelineTag?: string): ModelTask {
+  const match = MODEL_TASKS.find((entry) => entry.task === pipelineTag)
+  return match ? match.task : 'text-generation'
+}
+
+export interface FetchModelOptions {
+  formats?: ModelFormat[]
+  fetchImpl?: FetchLike
+  baseUrl?: string
+  timeoutMs?: number
+}
+
+/**
+ * Fetch a single model by its HuggingFace repo id — used when the user names
+ * a repo directly instead of picking one from the catalog.
+ */
+export async function fetchModelById(repoId: string, options: FetchModelOptions = {}): Promise<CatalogModel | null> {
+  const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike)
+  const baseUrl = (options.baseUrl ?? 'https://huggingface.co').replace(/\/+$/, '')
+  const timeoutMs = options.timeoutMs ?? 15000
+  const wanted = new Set<ModelFormat>(options.formats ?? ['gguf', 'safetensors'])
+
+  const response = await fetchImpl(`${baseUrl}/api/models/${encodeRepoId(repoId)}?blobs=true`, {
+    signal: AbortSignal.timeout(timeoutMs),
+    headers: { Accept: 'application/json' }
+  })
+  if (!response.ok) throw new Error(`HuggingFace returned HTTP ${response.status} for ${repoId}`)
+
+  const detail = (await response.json()) as HfDetail
+  const task = resolveModelTask(detail.pipeline_tag)
+  const item: HfListItem = {
+    id: detail.id ?? repoId,
+    pipeline_tag: detail.pipeline_tag,
+    tags: detail.tags ?? [],
+    downloads: Number(detail.downloads ?? 0),
+    likes: Number(detail.likes ?? 0)
+  }
+  return mapModel(task, item, detail, wanted)
 }

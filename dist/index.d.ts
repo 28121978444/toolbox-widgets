@@ -6,8 +6,7 @@ export { fetchGmailInbox, formatMailNotice, friendlyGmailError, GMAIL_APP_PASSWO
 export type { GmailAccountSettings, GmailCheckResult, GmailFetchOptions, GmailMessage, MailNotice } from './widgets/gmail-announcer.js';
 export { createResourceMonitor, validateResourceSettings } from './widgets/resource-monitor.js';
 export type { ResourceMonitorOptions, ResourceMonitorSettings, ResourceStats, TopProcess } from './widgets/resource-monitor.js';
-export { MODEL_TASKS } from './llamafarm/index.js';
-export { detectMachine, fetchCatalog, parseParamsBillions, parseQuantLabel, scoreModels, sortForDisplay } from './llamafarm/index.js';
-export type { CatalogModel, DetectOptions, ExecFileLike, FetchCatalogOptions, FitScenario, FitVerdict, GpuInfo, InstalledModel, MachineProfile, ModelFormat, ModelTask, ModelTaskInfo, OllamaInfo, ScoreOptions, ScoredModel } from './llamafarm/index.js';
+export { MODEL_TASKS, buildModelfile, catalogCachePath, detectMachine, fetchCatalog, fetchModelById, isCatalogFresh, normalizeRepoId, ollamaModelName, ollamaReference, parseParamsBillions, parseQuantLabel, planOllamaInstall, probeOllamaCli, pullIntoOllama, readCatalogCache, resolveModelTask, scoreModels, sortForDisplay, writeCatalogCache, DEFAULT_CATALOG_TTL_MS, OLLAMA_HF_HOST } from './llamafarm/index.js';
+export type { CatalogCache, CatalogModel, DetectOptions, ExecFileLike, FetchCatalogOptions, FetchModelOptions, FitScenario, FitVerdict, GpuInfo, InstalledModel, MachineProfile, ModelFormat, ModelTask, ModelTaskInfo, OllamaCliInfo, OllamaInfo, OllamaInstallPlan, PullResult, ScoreOptions, ScoredModel, SpawnLike, SpawnedProcess } from './llamafarm/index.js';
 export { DEFAULT_REGISTRY_URL, MARKETPLACE_FORMAT, MARKETPLACE_FORMAT_VERSION, fetchRegistry, parseRegistry, searchModules, validateRemoteEndpoint } from './marketplace/index.js';
 export type { FetchRegistryOptions, MarketplaceModule, MarketplaceModuleType, MarketplaceQuery, MarketplaceRegistry } from './marketplace/index.js';
