@@ -59,6 +59,10 @@ export interface MachineProfile {
   availableRamBytes: number
   cores: number
   gpus: GpuInfo[]
+  /** Free space on the disk models would be downloaded to; null when unknown. */
+  freeDiskBytes?: number | null
+  /** 'unknown' when no adapter could be read, so VRAM is not graded as zero. */
+  gpuProbe?: 'ok' | 'unknown'
   ollama: OllamaInfo
   detectedAt: number
 }
@@ -89,12 +93,74 @@ export interface CatalogModel {
 export type FitVerdict = 'green' | 'yellow' | 'red'
 export type FitScenario = 'now' | 'total'
 
+/** The four hardware axes a model is graded against. */
+export type GradeAxis = 'memory' | 'gpu' | 'compute' | 'storage'
+export type GradeLetter = 'A+' | 'A' | 'B' | 'C' | 'D' | 'F'
+
+/** One side of the scorecard: how strong this PC is on one axis, 0-100. */
+export interface MachineAxisRating {
+  axis: GradeAxis
+  label: string
+  /** 0-100 against a fixed reference ceiling; null when not detectable. */
+  score: number | null
+  /** The real value behind the score, e.g. '18.6 GB free'. */
+  detail: string
+}
+
+export interface MachineGrade {
+  scenario: FitScenario
+  /** Weighted 0-100 summary of the axes that could be measured. */
+  score: number
+  /** Capability wording ('mid-range', 'strong', …), not a fit verdict. */
+  label: string
+  axes: MachineAxisRating[]
+  weakest: MachineAxisRating | null
+}
+
+/** The same axis, with the model's demand laid alongside the PC's capability. */
+export interface AxisRating extends MachineAxisRating {
+  /** 0-100: how much of the reference ceiling this model consumes. */
+  model: number
+  /** machine - model. Negative means this axis is short. */
+  headroom: number | null
+  /** 0-100 fit for this axis alone; null when the PC side is unknown. */
+  fit: number | null
+  /** The real value behind the demand, e.g. '5.6 GB VRAM'. */
+  modelDetail: string
+}
+
+export interface GradeBottleneck {
+  axis: GradeAxis
+  label: string
+  /** 'machine' = this PC is the weak link; 'model' = the PC covers it. */
+  kind: 'machine' | 'model'
+  message: string
+  advice: string
+}
+
+/** The full scorecard for one model on one machine. */
+export interface SetupGrade {
+  scenario: FitScenario
+  /** Weakest-link weighted 0-100 verdict for the pairing. */
+  score: number
+  letter: GradeLetter
+  label: string
+  /** PC summary on the same task weights, so the two numbers compare. */
+  machineScore: number
+  /** Model demand summary on those weights. */
+  modelScore: number
+  axes: AxisRating[]
+  bottleneck: GradeBottleneck
+}
+
 export interface ScoredModel extends CatalogModel {
   verdict: FitVerdict
   fitsNow: boolean
   fitsTotal: boolean
   reason: string
   hints: string[]
+  /** Numeric scorecard for this model against the scoring machine. */
+  grade: SetupGrade
 }
 
 export interface ScoreOptions {

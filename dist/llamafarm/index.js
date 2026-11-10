@@ -2,6 +2,7 @@ export * from './types.js';
 export { detectMachine } from './detect.js';
 export { fetchCatalog, fetchModelById, parseParamsBillions, parseQuantLabel, resolveModelTask, choosePrimaryGguf, PREFERRED_QUANTS } from './huggingface.js';
 export { scoreModels, sortForDisplay } from './score.js';
+export { axisFit, gradeLabel, gradeLetter, gradeMachine, gradeSetup, machineLabel, AXIS_LABELS, GRADE_REFERENCE } from './grade.js';
 export { buildModelfile, normalizeRepoId, ollamaModelName, ollamaReference, planOllamaInstall, probeOllamaCli, pullIntoOllama, runOllamaCommand, OLLAMA_HF_HOST } from './ollama.js';
 export { catalogCachePath, isCatalogFresh, readCatalogCache, writeCatalogCache, DEFAULT_CATALOG_TTL_MS } from './cache.js';
 //# sourceMappingURL=index.js.map

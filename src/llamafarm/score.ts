@@ -4,6 +4,7 @@
  * keep offload hints (e.g. --n-gpu-layers) when a GPU offers a path to them.
  */
 import type { CatalogModel, FitScenario, FitVerdict, MachineProfile, ScoredModel } from './types.js'
+import { gradeSetup } from './grade.js'
 
 export interface ScoreOptions {
   models: CatalogModel[]
@@ -53,7 +54,15 @@ export function scoreModels(options: ScoreOptions): ScoredModel[] {
     if (model.formats.includes('gguf') && machine.ollama.installed) {
       hints.push('GGUF: import into Ollama, then run with ollama run')
     }
-    return { ...model, verdict, fitsNow, fitsTotal, reason, hints }
+    return {
+      ...model,
+      verdict,
+      fitsNow,
+      fitsTotal,
+      reason,
+      hints,
+      grade: gradeSetup(machine, model, scenario, { nowThreshold: threshold })
+    }
   })
 }
 

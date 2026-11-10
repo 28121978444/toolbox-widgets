@@ -13,6 +13,16 @@ export {
 } from './huggingface.js'
 export { scoreModels, sortForDisplay, type ScoreOptions } from './score.js'
 export {
+  axisFit,
+  gradeLabel,
+  gradeLetter,
+  gradeMachine,
+  gradeSetup,
+  machineLabel,
+  AXIS_LABELS,
+  GRADE_REFERENCE
+} from './grade.js'
+export {
   buildModelfile,
   normalizeRepoId,
   ollamaModelName,

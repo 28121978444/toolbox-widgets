@@ -9,6 +9,8 @@ export interface DetectOptions {
     ollamaUrl?: string;
     execFileImpl?: ExecFileLike;
     timeoutMs?: number;
+    /** Disk models would land on; defaults to the home directory's volume. */
+    diskPath?: string;
 }
 /** Best-effort snapshot of the machine; every field degrades gracefully. */
 export declare function detectMachine(options?: DetectOptions): Promise<MachineProfile>;

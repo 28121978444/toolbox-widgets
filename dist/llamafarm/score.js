@@ -1,3 +1,4 @@
+import { gradeSetup } from './grade.js';
 const DEFAULT_NOW_THRESHOLD = 0.93;
 const GiB = 2 ** 30;
 const VERDICT_RANK = { green: 0, yellow: 1, red: 2 };
@@ -33,7 +34,15 @@ export function scoreModels(options) {
         if (model.formats.includes('gguf') && machine.ollama.installed) {
             hints.push('GGUF: import into Ollama, then run with ollama run');
         }
-        return { ...model, verdict, fitsNow, fitsTotal, reason, hints };
+        return {
+            ...model,
+            verdict,
+            fitsNow,
+            fitsTotal,
+            reason,
+            hints,
+            grade: gradeSetup(machine, model, scenario, { nowThreshold: threshold })
+        };
     });
 }
 /** Verdict order (green, yellow, red), then lightest model first. */

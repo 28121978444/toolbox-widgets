@@ -62,12 +62,20 @@ export type {
 
 export {
   MODEL_TASKS,
+  AXIS_LABELS,
+  GRADE_REFERENCE,
+  axisFit,
   buildModelfile,
   catalogCachePath,
   choosePrimaryGguf,
   detectMachine,
   fetchCatalog,
   fetchModelById,
+  gradeLabel,
+  gradeLetter,
+  gradeMachine,
+  gradeSetup,
+  machineLabel,
   isCatalogFresh,
   normalizeRepoId,
   ollamaModelName,
@@ -88,6 +96,7 @@ export {
   PREFERRED_QUANTS
 } from './llamafarm/index.js'
 export type {
+  AxisRating,
   CatalogCache,
   CatalogModel,
   DetectOptions,
@@ -97,7 +106,12 @@ export type {
   FitScenario,
   FitVerdict,
   GpuInfo,
+  GradeAxis,
+  GradeBottleneck,
+  GradeLetter,
   InstalledModel,
+  MachineAxisRating,
+  MachineGrade,
   MachineProfile,
   ModelFormat,
   ModelTask,
@@ -108,6 +122,7 @@ export type {
   PullResult,
   ScoreOptions,
   ScoredModel,
+  SetupGrade,
   SpawnLike,
   SpawnedProcess
 } from './llamafarm/index.js'

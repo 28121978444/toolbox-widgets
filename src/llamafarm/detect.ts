@@ -4,6 +4,7 @@
  * profiles are more useful than none.
  */
 import { execFile } from 'node:child_process'
+import { statfs } from 'node:fs/promises'
 import os from 'node:os'
 import type { FetchLike } from '../widgets/crypto-watch.js'
 import type { GpuInfo, InstalledModel, MachineProfile, OllamaInfo } from './types.js'
@@ -20,6 +21,8 @@ export interface DetectOptions {
   ollamaUrl?: string
   execFileImpl?: ExecFileLike
   timeoutMs?: number
+  /** Disk models would land on; defaults to the home directory's volume. */
+  diskPath?: string
 }
 
 const GPU_CIM_SCRIPT =
@@ -75,20 +78,34 @@ async function detectOllama(fetchImpl: FetchLike, url: string, timeoutMs: number
   }
 }
 
+/** Free bytes on the target volume; null when the platform refuses to say. */
+async function detectFreeDisk(path: string): Promise<number | null> {
+  try {
+    const stats = await statfs(path)
+    const free = Number(stats.bsize) * Number(stats.bavail)
+    return Number.isFinite(free) && free >= 0 ? free : null
+  } catch {
+    return null
+  }
+}
+
 /** Best-effort snapshot of the machine; every field degrades gracefully. */
 export async function detectMachine(options: DetectOptions = {}): Promise<MachineProfile> {
   const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike)
   const execFileImpl = options.execFileImpl ?? (execFile as unknown as ExecFileLike)
   const timeoutMs = options.timeoutMs ?? 1500
-  const [gpus, ollama] = await Promise.all([
+  const [gpus, ollama, freeDiskBytes] = await Promise.all([
     detectGpus(execFileImpl, Math.max(timeoutMs, 5000)),
-    detectOllama(fetchImpl, options.ollamaUrl ?? 'http://127.0.0.1:11434', timeoutMs)
+    detectOllama(fetchImpl, options.ollamaUrl ?? 'http://127.0.0.1:11434', timeoutMs),
+    detectFreeDisk(options.diskPath ?? os.homedir())
   ])
   return {
     totalRamBytes: os.totalmem(),
     availableRamBytes: os.freemem(),
     cores: os.cpus().length,
     gpus,
+    freeDiskBytes,
+    gpuProbe: gpus.length > 0 ? 'ok' : 'unknown',
     ollama,
     detectedAt: Date.now()
   }
