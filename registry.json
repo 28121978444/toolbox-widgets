@@ -1,7 +1,7 @@
 {
   "format": "toolbox-marketplace",
   "formatVersion": 1,
-  "updated": "2026-11-10T00:00:00.000Z",
+  "updated": "2026-11-10T15:00:00.000Z",
   "modules": [
     {
       "id": "crypto-watch",
@@ -60,6 +60,32 @@
       "tags": ["llm", "huggingface", "ollama", "gguf", "gpu"],
       "homepage": "https://github.com/28121978444/toolbox-widgets",
       "builtIn": true
+    },
+    {
+      "id": "liquidvision",
+      "type": "remote-server",
+      "name": "LiquidVision — Crypto Derivatives",
+      "description": "Funding rates, open interest, liquidation maps and whale tracking across 13 venues, exchange-exact. No auth; 60 calls/min free. Tool arguments leave this machine.",
+      "version": "1.0.0",
+      "author": "lv-analytics",
+      "icon": "≈",
+      "categories": ["finance", "data"],
+      "tags": ["crypto", "derivatives", "funding", "liquidations", "remote"],
+      "homepage": "https://mcp.so/servers/liquidvision-crypto-derivatives-data",
+      "endpoint": "https://liquidvision.app/mcp"
+    },
+    {
+      "id": "cve-now",
+      "type": "remote-server",
+      "name": "cve.now — Vulnerability Feed",
+      "description": "CVE/GHSA/OSV lookup, critical vulnerability feed and lockfile stack checks (npm, yarn, Cargo, Go…). No auth. Tool arguments leave this machine.",
+      "version": "1.0.0",
+      "author": "Sazabi",
+      "icon": "△",
+      "categories": ["developer", "security"],
+      "tags": ["cve", "security", "vulnerabilities", "lockfile", "remote"],
+      "homepage": "https://mcp.so/servers/cve-now",
+      "endpoint": "https://mcp.cve.now/mcp"
     }
   ]
 }

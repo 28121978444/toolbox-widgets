@@ -93,7 +93,8 @@ export {
   MARKETPLACE_FORMAT_VERSION,
   fetchRegistry,
   parseRegistry,
-  searchModules
+  searchModules,
+  validateRemoteEndpoint
 } from './marketplace/index.js'
 export type {
   FetchRegistryOptions,

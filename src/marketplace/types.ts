@@ -11,7 +11,7 @@ export const MARKETPLACE_FORMAT_VERSION = 1
 export const DEFAULT_REGISTRY_URL =
   'https://raw.githubusercontent.com/28121978444/toolbox-widgets/main/registry.json'
 
-export type MarketplaceModuleType = 'widget' | 'feature'
+export type MarketplaceModuleType = 'widget' | 'feature' | 'remote-server'
 
 export interface MarketplaceModule {
   id: string
@@ -27,6 +27,8 @@ export interface MarketplaceModule {
   homepage: string
   /** Widget modules may ship default settings applied on install. */
   bundle?: WidgetBundleEntry
+  /** Remote MCP endpoint (remote-server modules). HTTPS, public hosts only. */
+  endpoint?: string
   /** Module needs credentials wired up locally after install. */
   credentialsRequired?: boolean
   /** Built-in modules ship with the app and cannot be uninstalled. */

@@ -1,3 +1,4 @@
+import { validateRemoteEndpoint } from './remote.js';
 import { DEFAULT_REGISTRY_URL, MARKETPLACE_FORMAT, MARKETPLACE_FORMAT_VERSION } from './types.js';
 function parseModule(value) {
     if (!value || typeof value !== 'object')
@@ -8,9 +9,10 @@ function parseModule(value) {
             throw new Error(`Registry module is missing a valid "${field}".`);
         }
     }
-    if (entry.type !== 'widget' && entry.type !== 'feature') {
+    if (entry.type !== 'widget' && entry.type !== 'feature' && entry.type !== 'remote-server') {
         throw new Error(`Registry module "${String(entry.id)}" has an unknown type.`);
     }
+    const endpoint = entry.type === 'remote-server' ? validateRemoteEndpoint(entry.endpoint) : undefined;
     return {
         id: entry.id,
         type: entry.type,
@@ -23,6 +25,7 @@ function parseModule(value) {
         tags: Array.isArray(entry.tags) ? entry.tags.filter((t) => typeof t === 'string') : [],
         homepage: typeof entry.homepage === 'string' ? entry.homepage : '',
         ...(entry.bundle && typeof entry.bundle === 'object' ? { bundle: entry.bundle } : {}),
+        ...(endpoint !== undefined ? { endpoint } : {}),
         ...(entry.credentialsRequired === true ? { credentialsRequired: true } : {}),
         ...(entry.builtIn === true ? { builtIn: true } : {})
     };

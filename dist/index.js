@@ -4,5 +4,5 @@ export { fetchGmailInbox, formatMailNotice, friendlyGmailError, GMAIL_APP_PASSWO
 export { createResourceMonitor, validateResourceSettings } from './widgets/resource-monitor.js';
 export { MODEL_TASKS } from './llamafarm/index.js';
 export { detectMachine, fetchCatalog, parseParamsBillions, parseQuantLabel, scoreModels, sortForDisplay } from './llamafarm/index.js';
-export { DEFAULT_REGISTRY_URL, MARKETPLACE_FORMAT, MARKETPLACE_FORMAT_VERSION, fetchRegistry, parseRegistry, searchModules } from './marketplace/index.js';
+export { DEFAULT_REGISTRY_URL, MARKETPLACE_FORMAT, MARKETPLACE_FORMAT_VERSION, fetchRegistry, parseRegistry, searchModules, validateRemoteEndpoint } from './marketplace/index.js';
 //# sourceMappingURL=index.js.map

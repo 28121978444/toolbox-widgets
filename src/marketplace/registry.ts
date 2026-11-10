@@ -4,6 +4,7 @@
  * validator); this module never executes anything from the registry.
  */
 import type { FetchLike } from '../widgets/crypto-watch.js'
+import { validateRemoteEndpoint } from './remote.js'
 import {
   DEFAULT_REGISTRY_URL,
   MARKETPLACE_FORMAT,
@@ -27,9 +28,10 @@ function parseModule(value: unknown): MarketplaceModule {
       throw new Error(`Registry module is missing a valid "${field}".`)
     }
   }
-  if (entry.type !== 'widget' && entry.type !== 'feature') {
+  if (entry.type !== 'widget' && entry.type !== 'feature' && entry.type !== 'remote-server') {
     throw new Error(`Registry module "${String(entry.id)}" has an unknown type.`)
   }
+  const endpoint = entry.type === 'remote-server' ? validateRemoteEndpoint(entry.endpoint) : undefined
   return {
     id: entry.id as string,
     type: entry.type,
@@ -42,6 +44,7 @@ function parseModule(value: unknown): MarketplaceModule {
     tags: Array.isArray(entry.tags) ? entry.tags.filter((t): t is string => typeof t === 'string') : [],
     homepage: typeof entry.homepage === 'string' ? entry.homepage : '',
     ...(entry.bundle && typeof entry.bundle === 'object' ? { bundle: entry.bundle as MarketplaceModule['bundle'] } : {}),
+    ...(endpoint !== undefined ? { endpoint } : {}),
     ...(entry.credentialsRequired === true ? { credentialsRequired: true } : {}),
     ...(entry.builtIn === true ? { builtIn: true } : {})
   }
