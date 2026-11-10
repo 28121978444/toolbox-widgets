@@ -18,6 +18,7 @@ export {
   planOllamaInstall,
   probeOllamaCli,
   pullIntoOllama,
+  runOllamaCommand,
   OLLAMA_HF_HOST,
   type OllamaCliInfo,
   type OllamaInstallPlan,

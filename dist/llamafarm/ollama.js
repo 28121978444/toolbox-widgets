@@ -80,8 +80,8 @@ export async function probeOllamaCli(execFileImpl) {
     return { installed: true, version: match ? match[1] : stdout.trim() || null, error: null };
 }
 const defaultSpawn = (file, args) => spawn(file, args, { stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
-/** Pull a reference into the local Ollama runtime, streaming progress. */
-export function pullIntoOllama(reference, options = {}) {
+/** Run an `ollama` subcommand, streaming its output. */
+export function runOllamaCommand(args, options = {}) {
     const spawnImpl = options.spawnImpl ?? defaultSpawn;
     return new Promise((resolve) => {
         let output = '';
@@ -94,7 +94,7 @@ export function pullIntoOllama(reference, options = {}) {
         };
         let child;
         try {
-            child = spawnImpl('ollama', ['pull', reference]);
+            child = spawnImpl('ollama', args);
         }
         catch (cause) {
             finish({ ok: false, code: null, output: '', error: cause instanceof Error ? cause.message : String(cause) });
@@ -108,7 +108,11 @@ export function pullIntoOllama(reference, options = {}) {
         child.stdout?.on('data', collect);
         child.stderr?.on('data', collect);
         child.on('error', (error) => finish({ ok: false, code: null, output, error: error.message }));
-        child.on('close', (code) => finish({ ok: code === 0, code, output, error: code === 0 ? null : `ollama pull exited with code ${code}` }));
+        child.on('close', (code) => finish({ ok: code === 0, code, output, error: code === 0 ? null : `ollama exited with code ${code}` }));
     });
+}
+/** Pull a reference into the local Ollama runtime, streaming progress. */
+export function pullIntoOllama(reference, options = {}) {
+    return runOllamaCommand(['pull', reference], options);
 }
 //# sourceMappingURL=ollama.js.map

@@ -127,9 +127,9 @@ export interface PullResult {
   error: string | null
 }
 
-/** Pull a reference into the local Ollama runtime, streaming progress. */
-export function pullIntoOllama(
-  reference: string,
+/** Run an `ollama` subcommand, streaming its output. */
+export function runOllamaCommand(
+  args: string[],
   options: { spawnImpl?: SpawnLike; onOutput?: (chunk: string) => void } = {}
 ): Promise<PullResult> {
   const spawnImpl = options.spawnImpl ?? defaultSpawn
@@ -143,7 +143,7 @@ export function pullIntoOllama(
     }
     let child: SpawnedProcess
     try {
-      child = spawnImpl('ollama', ['pull', reference])
+      child = spawnImpl('ollama', args)
     } catch (cause) {
       finish({ ok: false, code: null, output: '', error: cause instanceof Error ? cause.message : String(cause) })
       return
@@ -157,7 +157,15 @@ export function pullIntoOllama(
     child.stderr?.on('data', collect)
     child.on('error', (error) => finish({ ok: false, code: null, output, error: error.message }))
     child.on('close', (code) =>
-      finish({ ok: code === 0, code, output, error: code === 0 ? null : `ollama pull exited with code ${code}` })
+      finish({ ok: code === 0, code, output, error: code === 0 ? null : `ollama exited with code ${code}` })
     )
   })
+}
+
+/** Pull a reference into the local Ollama runtime, streaming progress. */
+export function pullIntoOllama(
+  reference: string,
+  options: { spawnImpl?: SpawnLike; onOutput?: (chunk: string) => void } = {}
+): Promise<PullResult> {
+  return runOllamaCommand(['pull', reference], options)
 }

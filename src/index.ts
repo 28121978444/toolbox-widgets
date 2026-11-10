@@ -78,6 +78,7 @@ export {
   pullIntoOllama,
   readCatalogCache,
   resolveModelTask,
+  runOllamaCommand,
   scoreModels,
   sortForDisplay,
   writeCatalogCache,

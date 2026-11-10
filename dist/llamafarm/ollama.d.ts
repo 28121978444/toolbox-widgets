@@ -55,6 +55,11 @@ export interface PullResult {
     output: string;
     error: string | null;
 }
+/** Run an `ollama` subcommand, streaming its output. */
+export declare function runOllamaCommand(args: string[], options?: {
+    spawnImpl?: SpawnLike;
+    onOutput?: (chunk: string) => void;
+}): Promise<PullResult>;
 /** Pull a reference into the local Ollama runtime, streaming progress. */
 export declare function pullIntoOllama(reference: string, options?: {
     spawnImpl?: SpawnLike;
