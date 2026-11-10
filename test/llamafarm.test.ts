@@ -220,6 +220,37 @@ describe('detectMachine', () => {
     assert.equal(profile.ollama.models[0]?.name, 'qwen2.5-coder:7b')
     assert.equal(profile.ollama.models[0]?.sizeBytes, 4683078144)
   })
+
+  it('prefers registry VRAM (64-bit) over the uint32 CIM cap', async () => {
+    let cimCalled = false
+    const execFile: ExecFileLike = (_file, args, _opts, cb) => {
+      if (args.some((arg) => arg.includes('Get-ItemProperty'))) {
+        cb(null, JSON.stringify({ Name: 'RTX 4060 Ti', AdapterRAM: 8585740288 }))
+      } else {
+        cimCalled = true
+        cb(null, JSON.stringify({ Name: 'RTX 4060 Ti', AdapterRAM: 4293918720 }))
+      }
+    }
+    const profile = await detectMachine({ fetchImpl: failingFetch, execFileImpl: execFile })
+    if (process.platform === 'win32') {
+      assert.equal(profile.gpus[0]?.vramBytes, 8585740288)
+      assert.equal(cimCalled, false)
+    }
+  })
+
+  it('falls back to CIM when the registry probe fails', async () => {
+    const execFile: ExecFileLike = (_file, args, _opts, cb) => {
+      if (args.some((arg) => arg.includes('Get-ItemProperty'))) {
+        cb(new Error('registry denied'), '')
+      } else {
+        cb(null, JSON.stringify({ Name: 'RTX 4070', AdapterRAM: 4293918720 }))
+      }
+    }
+    const profile = await detectMachine({ fetchImpl: failingFetch, execFileImpl: execFile })
+    if (process.platform === 'win32') {
+      assert.equal(profile.gpus[0]?.vramBytes, 4293918720)
+    }
+  })
 })
 
 describe('fetchCatalog', () => {
@@ -350,5 +381,18 @@ describe('fetchCatalog', () => {
     })
     const catalog = await fetchCatalog({ tasks: ['text-generation'], formats: ['gguf'], fetchImpl })
     assert.equal(catalog[0]?.paramsBillions, 14.7)
+  })
+
+  it('drops repos whose weights are too small to be a real model', async () => {
+    const fetchImpl = hfFetch({
+      '/api/models?pipeline_tag=text-to-speech&sort=downloads&direction=-1&limit=24': [
+        { id: 'tiny/config-only', pipeline_tag: 'text-to-speech', tags: ['safetensors'], downloads: 99, likes: 9 }
+      ],
+      '/api/models/tiny/config-only?blobs=true': {
+        siblings: [{ rfilename: 'adapter.safetensors', size: 10 * 1024 * 1024 }]
+      }
+    })
+    const catalog = await fetchCatalog({ tasks: ['text-to-speech'], formats: ['safetensors'], fetchImpl })
+    assert.equal(catalog.length, 0)
   })
 })

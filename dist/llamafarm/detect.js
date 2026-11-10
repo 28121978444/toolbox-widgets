@@ -5,12 +5,13 @@
  */
 import { execFile } from 'node:child_process';
 import os from 'node:os';
-const GPU_SCRIPT = 'Get-CimInstance Win32_VideoController | Select-Object Name,AdapterRAM | ConvertTo-Json -Compress';
-async function detectGpus(execFileImpl, timeoutMs) {
-    if (os.platform() !== 'win32')
-        return [];
+const GPU_CIM_SCRIPT = 'Get-CimInstance Win32_VideoController | Select-Object Name,AdapterRAM | ConvertTo-Json -Compress';
+// CIM's AdapterRAM is uint32 and caps at 4 GiB; the display-class registry
+// key carries the true 64-bit size. Prefer it, fall back to CIM.
+const GPU_REGISTRY_SCRIPT = "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\0*' -ErrorAction SilentlyContinue | Where-Object { $_.'HardwareInformation.qwMemorySize' } | Select-Object @{n='Name';e={$_.DriverDesc}},@{n='AdapterRAM';e={$_.'HardwareInformation.qwMemorySize'}} | ConvertTo-Json -Compress";
+async function probeGpus(execFileImpl, script, timeoutMs) {
     const stdout = await new Promise((resolve) => {
-        execFileImpl('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', GPU_SCRIPT], { timeout: timeoutMs, windowsHide: true }, (error, out) => resolve(error ? null : out));
+        execFileImpl('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { timeout: timeoutMs, windowsHide: true }, (error, out) => resolve(error ? null : out));
     });
     if (!stdout)
         return [];
@@ -24,6 +25,14 @@ async function detectGpus(execFileImpl, timeoutMs) {
     catch {
         return [];
     }
+}
+async function detectGpus(execFileImpl, timeoutMs) {
+    if (os.platform() !== 'win32')
+        return [];
+    const fromRegistry = await probeGpus(execFileImpl, GPU_REGISTRY_SCRIPT, timeoutMs);
+    if (fromRegistry.length > 0)
+        return fromRegistry;
+    return probeGpus(execFileImpl, GPU_CIM_SCRIPT, timeoutMs);
 }
 async function detectOllama(fetchImpl, url, timeoutMs) {
     const absent = { installed: false, url, models: [], error: null };

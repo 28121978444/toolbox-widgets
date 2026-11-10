@@ -17,6 +17,8 @@ export interface FetchCatalogOptions {
 
 const RUNTIME_OVERHEAD = 1.25
 const DETAIL_CONCURRENCY = 6
+/** Repos whose weights are smaller than this are configs/components, not models. */
+const MIN_WEIGHTS_BYTES = 50 * 1024 * 1024
 
 const QUANT_BITS: Array<[RegExp, number]> = [
   [/q2_k/i, 2.5],
@@ -100,6 +102,7 @@ function mapModel(
   const fileBytes = primary
     ? siblingBytes(chosen as HfSibling)
     : safeFiles.reduce((sum, s) => sum + siblingBytes(s), 0)
+  if (fileBytes > 0 && fileBytes < MIN_WEIGHTS_BYTES) return null
   const quantLabel = chosen ? parseQuantLabel(chosen.rfilename) : null
 
   const paramsBillions =

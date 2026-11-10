@@ -1,6 +1,8 @@
 import { MODEL_TASKS } from './types.js';
 const RUNTIME_OVERHEAD = 1.25;
 const DETAIL_CONCURRENCY = 6;
+/** Repos whose weights are smaller than this are configs/components, not models. */
+const MIN_WEIGHTS_BYTES = 50 * 1024 * 1024;
 const QUANT_BITS = [
     [/q2_k/i, 2.5],
     [/q3/i, 3.5],
@@ -55,6 +57,8 @@ function mapModel(task, item, detail, wanted) {
     const fileBytes = primary
         ? siblingBytes(chosen)
         : safeFiles.reduce((sum, s) => sum + siblingBytes(s), 0);
+    if (fileBytes > 0 && fileBytes < MIN_WEIGHTS_BYTES)
+        return null;
     const quantLabel = chosen ? parseQuantLabel(chosen.rfilename) : null;
     const paramsBillions = (chosen && parseParamsBillions(chosen.rfilename)) ??
         siblings.map((s) => parseParamsBillions(s.rfilename)).find((value) => value !== null) ??

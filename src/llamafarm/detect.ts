@@ -22,15 +22,19 @@ export interface DetectOptions {
   timeoutMs?: number
 }
 
-const GPU_SCRIPT =
+const GPU_CIM_SCRIPT =
   'Get-CimInstance Win32_VideoController | Select-Object Name,AdapterRAM | ConvertTo-Json -Compress'
 
-async function detectGpus(execFileImpl: ExecFileLike, timeoutMs: number): Promise<GpuInfo[]> {
-  if (os.platform() !== 'win32') return []
+// CIM's AdapterRAM is uint32 and caps at 4 GiB; the display-class registry
+// key carries the true 64-bit size. Prefer it, fall back to CIM.
+const GPU_REGISTRY_SCRIPT =
+  "Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\0*' -ErrorAction SilentlyContinue | Where-Object { $_.'HardwareInformation.qwMemorySize' } | Select-Object @{n='Name';e={$_.DriverDesc}},@{n='AdapterRAM';e={$_.'HardwareInformation.qwMemorySize'}} | ConvertTo-Json -Compress"
+
+async function probeGpus(execFileImpl: ExecFileLike, script: string, timeoutMs: number): Promise<GpuInfo[]> {
   const stdout = await new Promise<string | null>((resolve) => {
     execFileImpl(
       'powershell.exe',
-      ['-NoProfile', '-NonInteractive', '-Command', GPU_SCRIPT],
+      ['-NoProfile', '-NonInteractive', '-Command', script],
       { timeout: timeoutMs, windowsHide: true },
       (error, out) => resolve(error ? null : out)
     )
@@ -45,6 +49,13 @@ async function detectGpus(execFileImpl: ExecFileLike, timeoutMs: number): Promis
   } catch {
     return []
   }
+}
+
+async function detectGpus(execFileImpl: ExecFileLike, timeoutMs: number): Promise<GpuInfo[]> {
+  if (os.platform() !== 'win32') return []
+  const fromRegistry = await probeGpus(execFileImpl, GPU_REGISTRY_SCRIPT, timeoutMs)
+  if (fromRegistry.length > 0) return fromRegistry
+  return probeGpus(execFileImpl, GPU_CIM_SCRIPT, timeoutMs)
 }
 
 async function detectOllama(fetchImpl: FetchLike, url: string, timeoutMs: number): Promise<OllamaInfo> {
