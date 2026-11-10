@@ -86,3 +86,19 @@ export type {
   ScoreOptions,
   ScoredModel
 } from './llamafarm/index.js'
+
+export {
+  DEFAULT_REGISTRY_URL,
+  MARKETPLACE_FORMAT,
+  MARKETPLACE_FORMAT_VERSION,
+  fetchRegistry,
+  parseRegistry,
+  searchModules
+} from './marketplace/index.js'
+export type {
+  FetchRegistryOptions,
+  MarketplaceModule,
+  MarketplaceModuleType,
+  MarketplaceQuery,
+  MarketplaceRegistry
+} from './marketplace/index.js'

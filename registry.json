@@ -1,0 +1,65 @@
+{
+  "format": "toolbox-marketplace",
+  "formatVersion": 1,
+  "updated": "2026-11-10T00:00:00.000Z",
+  "modules": [
+    {
+      "id": "crypto-watch",
+      "type": "widget",
+      "name": "Crypto Watch",
+      "description": "Live CoinGecko prices for up to 8 coins, with 30/90/180-day history. Portable across Toolbox, NAS and MCP.",
+      "version": "0.1.0",
+      "author": "Toolbox",
+      "icon": "◈",
+      "categories": ["finance", "monitoring"],
+      "tags": ["crypto", "prices", "coingecko", "charts"],
+      "homepage": "https://github.com/28121978444/toolbox-widgets",
+      "bundle": {
+        "widget": "crypto-watch",
+        "settings": { "watchlist": ["bitcoin", "ethereum", "solana"] }
+      }
+    },
+    {
+      "id": "gmail-announcer",
+      "type": "widget",
+      "name": "Gmail Announcer",
+      "description": "Read-only IMAP inbox checks with friendly notifications. Connect a 16-character App Password after installing.",
+      "version": "0.1.0",
+      "author": "Toolbox",
+      "icon": "✉",
+      "categories": ["communication"],
+      "tags": ["gmail", "imap", "mail", "notifications"],
+      "homepage": "https://github.com/28121978444/toolbox-widgets",
+      "credentialsRequired": true
+    },
+    {
+      "id": "resource-monitor",
+      "type": "widget",
+      "name": "Resource Monitor",
+      "description": "CPU, memory, disk usage and top processes at a glance. The numbers behind Model Farm's fit scoring.",
+      "version": "0.1.0",
+      "author": "Toolbox",
+      "icon": "▤",
+      "categories": ["monitoring", "system"],
+      "tags": ["cpu", "ram", "disk", "processes"],
+      "homepage": "https://github.com/28121978444/toolbox-widgets",
+      "bundle": {
+        "widget": "resource-monitor",
+        "settings": { "showProcesses": true }
+      }
+    },
+    {
+      "id": "llamafarm",
+      "type": "feature",
+      "name": "Model Farm",
+      "description": "HuggingFace catalog fit-scored against this machine: green runs now, yellow needs headroom, red needs offload. Three-wave filtering with live verdicts.",
+      "version": "0.2.0",
+      "author": "Toolbox",
+      "icon": "⌁",
+      "categories": ["ai", "models"],
+      "tags": ["llm", "huggingface", "ollama", "gguf", "gpu"],
+      "homepage": "https://github.com/28121978444/toolbox-widgets",
+      "builtIn": true
+    }
+  ]
+}

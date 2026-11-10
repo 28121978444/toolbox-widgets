@@ -9,3 +9,5 @@ export type { ResourceMonitorOptions, ResourceMonitorSettings, ResourceStats, To
 export { MODEL_TASKS } from './llamafarm/index.js';
 export { detectMachine, fetchCatalog, parseParamsBillions, parseQuantLabel, scoreModels, sortForDisplay } from './llamafarm/index.js';
 export type { CatalogModel, DetectOptions, ExecFileLike, FetchCatalogOptions, FitScenario, FitVerdict, GpuInfo, InstalledModel, MachineProfile, ModelFormat, ModelTask, ModelTaskInfo, OllamaInfo, ScoreOptions, ScoredModel } from './llamafarm/index.js';
+export { DEFAULT_REGISTRY_URL, MARKETPLACE_FORMAT, MARKETPLACE_FORMAT_VERSION, fetchRegistry, parseRegistry, searchModules } from './marketplace/index.js';
+export type { FetchRegistryOptions, MarketplaceModule, MarketplaceModuleType, MarketplaceQuery, MarketplaceRegistry } from './marketplace/index.js';
