@@ -146,9 +146,12 @@ function mapModel(
   if (fileBytes > 0 && fileBytes < MIN_WEIGHTS_BYTES) return null
   const quantLabel = chosen ? parseQuantLabel(chosen.rfilename) : null
 
+  const repoName = item.id.split('/')[1] ?? item.id
   const paramsBillions =
     (chosen && parseParamsBillions(chosen.rfilename)) ??
     siblings.map((s) => parseParamsBillions(s.rfilename)).find((value) => value !== null) ??
+    // GGUF filenames rarely carry the parameter count; the repo name usually does.
+    parseParamsBillions(repoName) ??
     (typeof detail.gguf?.total === 'number' ? Math.round((detail.gguf.total / 1e9) * 100) / 100 : null)
 
   let runtimeRamBytes: number
