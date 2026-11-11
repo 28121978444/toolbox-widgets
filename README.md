@@ -14,6 +14,24 @@ Shared widget core and portable bundle format for the Toolbox family of apps:
 - **gmail-announcer** — read-only Gmail IMAP checks (unread count, recent messages) with friendly error messages. Never stores credentials.
 - **resource-monitor** — CPU, memory and disk stats plus a Windows top-process list.
 
+## Model Farm
+
+The `llamafarm` module powers the Model Farm feature in the CLI, MCP panel and
+desktop app:
+
+- **Machine detection** (`detectMachine`) — RAM, cores, GPU VRAM and the local
+  Ollama runtime, with injected probes for testing.
+- **HuggingFace catalog** (`fetchCatalog`, `fetchModelById`) — top models per
+  pipeline task, measured by their real GGUF/safetensors file size.
+- **Fit scoring** (`scoreModels`) — green/yellow/red against a `now` (93% of free
+  RAM) or `total` budget, with GPU offload hints.
+- **Numeric grading** (`gradeMachine`, `gradeSetup`) — the PC and each model rated
+  0–100 on memory, GPU, compute and storage against fixed reference ceilings;
+  the setup grade is weakest-link weighted and names the bottleneck.
+  `gradeLetter` / `gradeLabel` map scores to A+…F and plain-language labels.
+- **Ollama install** (`planOllamaInstall`, `pullIntoOllama`, Modelfile helpers) —
+  a single `ollama pull hf.co/owner/repo:quant`, or a GPU-split Modelfile.
+
 ## Portable bundle format
 
 Any app can export its widget setup and another can import it. Bundles are plain,
